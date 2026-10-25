@@ -6,12 +6,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator  # Use @validator for Pydantic 1.x
 from fastapi.exceptions import RequestValidationError
 from app.operations import add, subtract, multiply, divide  # Ensure correct import path
+from app.logging_config import configure_logging
 import uvicorn
 import logging
 from time import perf_counter
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging (console + rotating file; level and file set by LOG_LEVEL / LOG_FILE)
+configure_logging()
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -82,6 +83,7 @@ async def read_root(request: Request):
     """
     Serve the index.html template.
     """
+    logger.info("Serving calculator page")
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
@@ -140,4 +142,5 @@ async def divide_route(operation: OperationRequest):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 if __name__ == "__main__":
+    logger.info("Starting calculator server on http://127.0.0.1:8000")
     uvicorn.run(app, host="127.0.0.1", port=8000)
