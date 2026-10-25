@@ -198,13 +198,28 @@ docker run -it --rm <image-name>
 
 # 🚀 6. Running the Project
 
-- **Without Docker**:
+Activate the virtual environment, then start the local server:
 
 ```bash
+venv\Scripts\activate
 python main.py
 ```
 
-(or update this if the main script is different.)
+The calculator is available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+## Run Tests
+
+Install the Playwright Chromium browser once before running the end-to-end tests:
+
+```bash
+python -m playwright install chromium
+python -m pytest
+```
+
+The test suite includes unit tests for the arithmetic functions, API integration tests,
+and browser-based end-to-end tests. GitHub Actions runs the same suite on pushes and
+pull requests. Application logs report HTTP request status and duration, calculator
+operations, and errors.
 
 - **With Docker**:
 

@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from app.operations import add, subtract, multiply, divide  # Ensure correct import path
 import uvicorn
 import logging
+from time import perf_counter
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -17,6 +18,26 @@ app = FastAPI()
 
 # Setup templates directory
 templates = Jinja2Templates(directory="templates")
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start_time = perf_counter()
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        duration_ms = (perf_counter() - start_time) * 1000
+        logger.info(
+            "%s %s completed with status %d in %.2f ms",
+            request.method,
+            request.url.path,
+            status_code,
+            duration_ms,
+        )
+
 
 # Pydantic model for request data
 class OperationRequest(BaseModel):
@@ -70,6 +91,7 @@ async def add_route(operation: OperationRequest):
     """
     try:
         result = add(operation.a, operation.b)
+        logger.info("Add operation: %s + %s = %s", operation.a, operation.b, result)
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Add Operation Error: {str(e)}")
@@ -82,6 +104,7 @@ async def subtract_route(operation: OperationRequest):
     """
     try:
         result = subtract(operation.a, operation.b)
+        logger.info("Subtract operation: %s - %s = %s", operation.a, operation.b, result)
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Subtract Operation Error: {str(e)}")
@@ -94,6 +117,7 @@ async def multiply_route(operation: OperationRequest):
     """
     try:
         result = multiply(operation.a, operation.b)
+        logger.info("Multiply operation: %s * %s = %s", operation.a, operation.b, result)
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Multiply Operation Error: {str(e)}")
@@ -106,6 +130,7 @@ async def divide_route(operation: OperationRequest):
     """
     try:
         result = divide(operation.a, operation.b)
+        logger.info("Divide operation: %s / %s = %s", operation.a, operation.b, result)
         return OperationResponse(result=result)
     except ValueError as e:
         logger.error(f"Divide Operation Error: {str(e)}")

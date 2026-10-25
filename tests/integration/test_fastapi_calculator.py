@@ -1,5 +1,7 @@
 # tests/integration/test_fastapi_calculator.py
 
+import logging
+
 import pytest  # Import the pytest framework for writing and running tests
 from fastapi.testclient import TestClient  # Import TestClient for simulating API requests
 from main import app  # Import the FastAPI app instance from your main application file
@@ -23,6 +25,14 @@ def client():
     """
     with TestClient(app) as client:
         yield client  # Provide the TestClient instance to the test functions
+
+
+def test_root_api(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "Hello World" in response.text
+
 
 # ---------------------------------------------
 # Test Function: test_add_api
@@ -152,3 +162,20 @@ def test_divide_by_zero_api(client):
     # Assert that the 'error' field contains the correct error message
     assert "Cannot divide by zero!" in response.json()['error'], \
         f"Expected error message 'Cannot divide by zero!', got '{response.json()['error']}'"
+
+
+def test_invalid_operation_request_returns_error(client):
+    response = client.post("/add", json={"a": "not a number", "b": 5})
+
+    assert response.status_code == 400
+    assert "error" in response.json()
+
+
+def test_operation_and_request_logging(client, caplog):
+    caplog.set_level(logging.INFO, logger="main")
+
+    response = client.post("/add", json={"a": 10, "b": 5})
+
+    assert response.status_code == 200
+    assert "Add operation: 10.0 + 5.0 = 15.0" in caplog.text
+    assert "POST /add completed with status 200" in caplog.text
