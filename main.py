@@ -85,7 +85,7 @@ async def read_root(request: Request):
     Serve the index.html template.
     """
     logger.info("Serving calculator page")
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def add_route(operation: OperationRequest):
