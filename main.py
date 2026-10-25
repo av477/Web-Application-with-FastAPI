@@ -47,7 +47,8 @@ class OperationRequest(BaseModel):
 
     @field_validator('a', 'b')  # Correct decorator for Pydantic 1.x
     def validate_numbers(cls, value):
-        if not isinstance(value, (int, float)):
+        # Defensive check: Pydantic has already converted a and b to float, so this is not reachable via the API
+        if not isinstance(value, (int, float)):  # pragma: no cover
             raise ValueError('Both a and b must be numbers.')
         return value
 
@@ -141,6 +142,6 @@ async def divide_route(operation: OperationRequest):
         logger.error(f"Divide Operation Internal Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover  (exercised by the e2e tests in a subprocess)
     logger.info("Starting calculator server on http://127.0.0.1:8000")
     uvicorn.run(app, host="127.0.0.1", port=8000)
