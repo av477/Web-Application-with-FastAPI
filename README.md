@@ -218,8 +218,33 @@ python -m pytest
 
 The test suite includes unit tests for the arithmetic functions, API integration tests,
 and browser-based end-to-end tests. GitHub Actions runs the same suite on pushes and
-pull requests. Application logs report HTTP request status and duration, calculator
-operations, and errors.
+pull requests, and uploads the coverage report and logs as a `test-reports` artifact.
+
+Run one layer at a time:
+
+```bash
+python -m pytest tests/unit          # unit tests for app/operations and logging setup
+python -m pytest tests/integration   # API endpoint tests with FastAPI's TestClient
+python -m pytest -m e2e              # Playwright browser tests (starts the server itself)
+```
+
+Coverage for `app/` and `main.py` is printed after each run, and an HTML report is
+written to `htmlcov/index.html`.
+
+## Logging
+
+Application logs report HTTP request status and duration, every calculator operation,
+validation errors, and other errors. Logs go to the console and to `logs/app.log`
+(rotated at about 1 MB, keeping 3 old files). Two environment variables control logging:
+
+| Variable    | Default        | Purpose                                        |
+|-------------|----------------|------------------------------------------------|
+| `LOG_LEVEL` | `INFO`         | Minimum level; use `DEBUG` to see each operation |
+| `LOG_FILE`  | `logs/app.log` | Path of the log file                           |
+
+```bash
+LOG_LEVEL=DEBUG python main.py
+```
 
 - **With Docker**:
 
