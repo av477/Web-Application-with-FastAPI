@@ -16,6 +16,9 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN python -m pip uninstall -y pip && \
+   rm -rf /usr/local/lib/python3.10/ensurepip
+
 COPY . .
 RUN chown -R appuser:appgroup /app
 
