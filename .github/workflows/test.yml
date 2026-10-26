@@ -1,8 +1,7 @@
 name: CI/CD
 
 on:
- push:
-   branches: [ main ]
+ push:            # run the tests on every push, to any branch
  pull_request:
    branches: [ main ]
 
@@ -29,14 +28,33 @@ jobs:
          python -m venv venv
          source venv/bin/activate
          pip install -r requirements.txt
-         playwright install
+         playwright install --with-deps chromium
 
-     - name: Run tests
+     - name: Run unit tests
        run: |
          source venv/bin/activate
-         pytest tests/unit/ --cov=src --junitxml=test-results/junit.xml
-         pytest tests/integration/
-         pytest tests/e2e/
+         pytest tests/unit/ --junitxml=test-results/unit.xml
+
+     - name: Run integration tests
+       run: |
+         source venv/bin/activate
+         pytest tests/integration/ --junitxml=test-results/integration.xml
+
+     - name: Run end-to-end tests
+       run: |
+         source venv/bin/activate
+         pytest tests/e2e/ --junitxml=test-results/e2e.xml
+
+     - name: Upload test results, coverage report and logs
+       if: always()
+       uses: actions/upload-artifact@v4
+       with:
+         name: test-reports
+         path: |
+           test-results/
+           htmlcov/
+           logs/
+         if-no-files-found: ignore
 
  security:
    needs: test
