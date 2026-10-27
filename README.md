@@ -1,304 +1,158 @@
-# 📦 Project Setup
+# FastAPI Calculator
 
----
+A web-based calculator built with FastAPI. The application serves a browser interface and provides JSON API endpoints for addition, subtraction, multiplication, and division. The project includes unit, API integration, and Playwright end-to-end tests, plus a GitHub Actions workflow for testing, container scanning, and deployment.
 
-# 🧩 1. Install Homebrew (Mac Only)
+## Features
 
-> Skip this step if you're on Windows.
+- Calculator web page served from a Jinja2 template.
+- REST-style JSON endpoints for the four basic arithmetic operations.
+- Input validation and descriptive error responses, including division-by-zero handling.
+- Request and operation logging to the console and a rotating log file.
+- Automated test coverage for calculation logic, API behavior, and browser workflows.
+- Docker packaging and GitHub Actions CI/CD.
 
-Homebrew is a package manager for macOS.  
-You’ll use it to easily install Git, Python, Docker, etc.
+## Requirements
 
-**Install Homebrew:**
+- Python 3.10 or later
+- Git
+- Chromium browser for local Playwright end-to-end tests
+- Docker Desktop or Docker Engine (optional, for container use)
+
+## Run locally
+
+Clone the repository and move into the project directory:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+git clone https://github.com/av477/Web-Application-with-FastAPI.git
+cd Web-Application-with-FastAPI
 ```
 
-**Verify Homebrew:**
+Create and activate a virtual environment, then install dependencies:
 
 ```bash
-brew --version
+python -m venv .venv
 ```
 
-If you see a version number, you're good to go.
+Windows PowerShell:
 
----
-
-# 🧩 2. Install and Configure Git
-
-## Install Git
-
-- **MacOS (using Homebrew)**
-
-```bash
-brew install git
+```powershell
+.\.venv\Scripts\Activate.ps1
 ```
 
-- **Windows**
-
-Download and install [Git for Windows](https://git-scm.com/download/win).  
-Accept the default options during installation.
-
-**Verify Git:**
+macOS or Linux:
 
 ```bash
-git --version
+source .venv/bin/activate
 ```
 
----
-
-## Configure Git Globals
-
-Set your name and email so Git tracks your commits properly:
+Install the requirements and start the application:
 
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "your_email@example.com"
-```
-
-Confirm the settings:
-
-```bash
-git config --list
-```
-
----
-
-## Generate SSH Keys and Connect to GitHub
-
-> Only do this once per machine.
-
-1. Generate a new SSH key:
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-(Press Enter at all prompts.)
-
-2. Start the SSH agent:
-
-```bash
-eval "$(ssh-agent -s)"
-```
-
-3. Add the SSH private key to the agent:
-
-```bash
-ssh-add ~/.ssh/id_ed25519
-```
-
-4. Copy your SSH public key:
-
-- **Mac/Linux:**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | pbcopy
-```
-
-- **Windows (Git Bash):**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | clip
-```
-
-5. Add the key to your GitHub account:
-   - Go to [GitHub SSH Settings](https://github.com/settings/keys)
-   - Click **New SSH Key**, paste the key, save.
-
-6. Test the connection:
-
-```bash
-ssh -T git@github.com
-```
-
-You should see a success message.
-
----
-
-# 🧩 3. Clone the Repository
-
-Now you can safely clone the course project:
-
-```bash
-git clone <repository-url>
-cd <repository-directory>
-```
-
----
-
-# 🛠️ 4. Install Python 3.10+
-
-## Install Python
-
-- **MacOS (Homebrew)**
-
-```bash
-brew install python
-```
-
-- **Windows**
-
-Download and install [Python for Windows](https://www.python.org/downloads/).  
-✅ Make sure you **check the box** `Add Python to PATH` during setup.
-
-**Verify Python:**
-
-```bash
-python3 --version
-```
-or
-```bash
-python --version
-```
-
----
-
-## Create and Activate a Virtual Environment
-
-(Optional but recommended)
-
-```bash
-python3 -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate.bat  # Windows
-```
-
-### Install Required Packages
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# 🐳 5. (Optional) Docker Setup
-
-> Skip if Docker isn't used in this module.
-
-## Install Docker
-
-- [Install Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
-- [Install Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
-
-## Build Docker Image
-
-```bash
-docker build -t <image-name> .
-```
-
-## Run Docker Container
-
-```bash
-docker run -it --rm <image-name>
-```
-
----
-
-# 🚀 6. Running the Project
-
-Activate the virtual environment, then start the local server:
-
-```bash
-venv\Scripts\activate
+python -m pip install -r requirements.txt
 python main.py
 ```
 
-The calculator is available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in a browser. Interactive API documentation is available at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-## Run Tests
+## API
 
-Install the Playwright Chromium browser once before running the end-to-end tests:
+Each operation accepts a JSON request with numeric `a` and `b` fields and returns a JSON result.
+
+| Method | Endpoint | Operation |
+|---|---|---|
+| `POST` | `/add` | `a + b` |
+| `POST` | `/subtract` | `a - b` |
+| `POST` | `/multiply` | `a * b` |
+| `POST` | `/divide` | `a / b` |
+
+Example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/add \
+  -H "Content-Type: application/json" \
+  -d "{\"a\": 10, \"b\": 5}"
+```
+
+Successful response:
+
+```json
+{"result": 15.0}
+```
+
+Invalid input and division by zero return an error response with an `error` field.
+
+## Run tests
+
+Install the Playwright Chromium browser before running the browser tests:
 
 ```bash
 python -m playwright install chromium
+```
+
+Run the complete test suite:
+
+```bash
 python -m pytest
 ```
 
-The test suite includes unit tests for the arithmetic functions, API integration tests,
-and browser-based end-to-end tests. GitHub Actions runs the same suite on pushes and
-pull requests, and uploads the coverage report and logs as a `test-reports` artifact.
-
-Run one layer at a time:
+Or run a specific test layer:
 
 ```bash
-python -m pytest tests/unit          # unit tests for app/operations and logging setup
-python -m pytest tests/integration   # API endpoint tests with FastAPI's TestClient
-python -m pytest -m e2e              # Playwright browser tests (starts the server itself)
+python -m pytest tests/unit
+python -m pytest tests/integration
+python -m pytest tests/e2e
 ```
 
-Coverage for `app/` and `main.py` is printed after each run, and an HTML report is
-written to `htmlcov/index.html`.
+Pytest is configured to report coverage for `app/` and `main.py` in the terminal and to write an HTML report to `htmlcov/index.html`.
 
 ## Logging
 
-Application logs report HTTP request status and duration, every calculator operation,
-validation errors, and other errors. Logs go to the console and to `logs/app.log`
-(rotated at about 1 MB, keeping 3 old files). Two environment variables control logging:
+The application logs requests, calculation operations, and errors to the console and to a rotating file. By default, the file is `logs/app.log`; it rotates at approximately 1 MB and retains three previous log files.
 
-| Variable    | Default        | Purpose                                        |
-|-------------|----------------|------------------------------------------------|
-| `LOG_LEVEL` | `INFO`         | Minimum level; use `DEBUG` to see each operation |
-| `LOG_FILE`  | `logs/app.log` | Path of the log file                           |
+| Environment variable | Default | Description |
+|---|---|---|
+| `LOG_LEVEL` | `INFO` | Minimum log level, such as `DEBUG`, `INFO`, `WARNING`, or `ERROR`. |
+| `LOG_FILE` | `logs/app.log` | Path to the application log file. |
 
-```bash
-LOG_LEVEL=DEBUG python main.py
-```
+For example, set `LOG_LEVEL=DEBUG` before starting the application to see debug-level operation logs.
 
-- **With Docker**:
+## Docker
+
+Build the image from the repository root:
 
 ```bash
-docker run -it --rm <image-name>
+docker build -t fastapi-calculator .
 ```
 
----
-
-# 📝 7. Submission Instructions
-
-After finishing your work:
+Run the container and publish port 8000:
 
 ```bash
-git add .
-git commit -m "Complete Module X"
-git push origin main
+docker run --rm -p 8000:8000 fastapi-calculator
 ```
 
-Then submit the GitHub repository link as instructed.
+The app is then available at [http://localhost:8000](http://localhost:8000).
 
----
+## GitHub Actions
 
-# 🔥 Useful Commands Cheat Sheet
+The workflow in `.github/workflows/test.yml` runs unit, integration, and end-to-end tests, builds and scans the Docker image with Trivy, and deploys the image on pushes to `main` after the preceding jobs pass.
 
-| Action                         | Command                                          |
-| ------------------------------- | ------------------------------------------------ |
-| Install Homebrew (Mac)          | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
-| Install Git                     | `brew install git` or Git for Windows installer |
-| Configure Git Global Username  | `git config --global user.name "Your Name"`      |
-| Configure Git Global Email     | `git config --global user.email "you@example.com"` |
-| Clone Repository                | `git clone <repo-url>`                          |
-| Create Virtual Environment     | `python3 -m venv venv`                           |
-| Activate Virtual Environment   | `source venv/bin/activate` / `venv\Scripts\activate.bat` |
-| Install Python Packages        | `pip install -r requirements.txt`               |
-| Build Docker Image              | `docker build -t <image-name> .`                |
-| Run Docker Container            | `docker run -it --rm <image-name>`               |
-| Push Code to GitHub             | `git add . && git commit -m "message" && git push` |
+To enable deployment, configure `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` as secrets for the GitHub `production` environment. The account must have permission to publish to the configured Docker Hub image repository. The workflow publishes `av477/601_module8:latest` and a tag containing the commit SHA.
 
----
+## Project layout
 
-# 📋 Notes
-
-- Install **Homebrew** first on Mac.
-- Install and configure **Git** and **SSH** before cloning.
-- Use **Python 3.10+** and **virtual environments** for Python projects.
-- **Docker** is optional depending on the project.
-
----
-
-# 📎 Quick Links
-
-- [Homebrew](https://brew.sh/)
-- [Git Downloads](https://git-scm.com/downloads)
-- [Python Downloads](https://www.python.org/downloads/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+```text
+app/
+  logging_config.py       Logging configuration
+  operations/             Calculator operations
+templates/
+  index.html              Calculator page
+tests/
+  unit/                   Unit tests
+  integration/            API tests
+  e2e/                    Playwright browser tests
+.github/workflows/
+  test.yml                CI, container scanning, and deployment workflow
+main.py                   FastAPI application and API routes
+Dockerfile                Container build instructions
+requirements.txt          Python dependencies
+```
